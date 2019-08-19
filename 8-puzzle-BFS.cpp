@@ -17,6 +17,8 @@ struct Node
     int x, y; 
     int prevOP;
 }; 
+struct Node *vis[1000000];
+lli last = -1;
 void printNode(Node *n){
     cout<<"--------------"<<endl;
     NA(i,0,3){
@@ -33,6 +35,13 @@ int check(Node *n,int d[3][3]){
         }
     } return 1;
 }
+int checkVis(Node *n){
+    NA(i,0,last){
+        if(check(vis[i],n->m)) return 1;
+    }
+    return 0;
+}
+
 void backtrack(Node *n){
     while(n->parent!=NULL){
         printNode(n);
@@ -70,7 +79,9 @@ Node* opr(Node *nd,lli dir){
 }
 void bfs(Node *n,int d[3][3]){
     queue<struct Node*> q;
-    q.push(n);
+    q.push(n); vis[0] = (struct Node*)malloc(sizeof(struct Node));
+    vis[0]=n;
+    last++;
     while(!q.empty()){
         if(q.front()==NULL) {
             q.pop(); continue;
@@ -80,10 +91,19 @@ void bfs(Node *n,int d[3][3]){
             return;
         }
         Node* s = (struct Node*)malloc(sizeof(struct Node));
-        s = q.front();
+        s = q.front(); // cout<<s->m[1][1]<<endl;
+        // cout<<"HI"<<endl;
         q.pop();
         NA(i,-2,3){
-            if(i!=0) q.push(opr(s,i));
+            if(i!=0) {
+                struct Node *s1 = (struct Node*)malloc(sizeof(struct Node));
+                s1 = opr(s,i);
+                if(s1!=NULL && !checkVis(s1)) {
+                    q.push(s1); // last++;
+                    vis[++last] = (struct Node*)malloc(sizeof(struct Node));
+                    vis[last]=s1; 
+                }
+            }
         }
     }
 }
