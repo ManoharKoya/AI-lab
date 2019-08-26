@@ -15,23 +15,35 @@ void dfsRec(lli r,vector<lli> gp[],lli vis[]){
     }
     return;
 }
-void dfsItr(lli r, vector<lli> gp[],lli vis[],lli e){
+lli root = 1, res=0,p=0,k;
+vector<lli> poi;
+void dfsItr(lli r, vector<lli> gp[],lli vis[]){
     stack<lli> s; s.push(r);
-    lli cur,ct=1;
-    while(ct<e+2){
+    lli cur;
+    while(!s.empty()){
         cur = s.top();
         s.pop();
-            cout<<cur<<" ";
+        if(vis[cur]==0){
+            // cout<<cur<<" ";
+            vis[cur]=1;
+        }
+        if(poi[cur]==1) {p++; if(p==k) dfsItr(root,gp,vis); break;}
+        else p=0;
         vector<lli>::iterator it = gp[cur].begin();
+        if(it+1==gp[cur].end()) ++res;
         while(it!=gp[cur].end()){
-            { ct++; s.push(*it); }
+            if(vis[*it]==0) { s.push(*it); }
             it++;
         }
     }
+    return;
 }
 int solve(){
     //store graph.
-    lli v,a,b,e; cin>>v>>e;
+    lli v,a,b,e; cin>>v>>k;
+    e=v-1;
+    poi.resize(v+1);
+    NA(i,1,v+1) cin>>poi[i];
     vector<lli> gp[v+1];
     lli vis[v+1];
     NA(i,0,v+1) vis[i]=0;
@@ -39,11 +51,8 @@ int solve(){
         cin>>a>>b; 
         gp[a].pb(b);
     }
-    
-    cout<<"Enter root: "; lli r; cin>>r;
-    // dfsRec(r,gp,vis); cout<<endl;
-    // NA(i,0,v+1) vis[i]=0;
-    dfsItr(r,gp,vis,e);
+    dfsItr(root,gp,vis);
+    cout<<res<<endl;
 }
 int main(){
     solve();

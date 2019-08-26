@@ -16,6 +16,7 @@ struct Node
     int m[3][3]; 
     int x, y; 
     int prevOP;
+    int level;
 }; 
 struct Node *vis[1000000];
 lli last = -1;
@@ -50,7 +51,7 @@ void backtrack(Node *n){
 }
 Node* newNode(Node *nd,int px,int py,int dir){
     struct Node *n = (struct Node*)malloc(sizeof(struct Node));
-    n->parent = nd; n->x=px; n->y=py; n->prevOP = dir;
+    n->parent = nd; n->x=px; n->y=py; n->prevOP = dir; n->level=(nd->level)+1;
     NA(i,0,3){
         NA(j,0,3){
             n->m[i][j] = nd->m[i][j];
@@ -77,21 +78,33 @@ Node* opr(Node *nd,lli dir){
         return NULL;
     }
 }
+int heu(Node *n,int d[3][3]){
+    int c=0;
+    NA(i,0,3){
+        NA(j,0,3){
+            if(n->m[i][j]!=d[i][j]) c++;
+        }
+    }
+    return -(c+(n->level));
+}
 void bfs(Node *n,int d[3][3]){
-    queue<struct Node*> q;
-    q.push(n); vis[0] = (struct Node*)malloc(sizeof(struct Node));
+    priority_queue<pair<int , struct Node*> > q;
+    // queue<struct Node*> q;
+    q.push(mp(heu(n,d),n)); 
+    // q.push(n); 
+    vis[0] = (struct Node*)malloc(sizeof(struct Node));
     vis[0]=n;
     last++;
     while(!q.empty()){
-        if(q.front()==NULL) {
+        if(q.top().second==NULL) {
             q.pop(); continue;
         }
-        if(check(q.front(),d)) {
-            backtrack(q.front());
+        if(check(q.top().second,d)) {
+            backtrack(q.top().second);
             return;
         }
         Node* s = (struct Node*)malloc(sizeof(struct Node));
-        s = q.front(); // cout<<s->m[1][1]<<endl;
+        s = q.top().second; // cout<<s->m[1][1]<<endl;
         // cout<<"HI"<<endl;
         q.pop();
         NA(i,-2,3){
@@ -99,7 +112,7 @@ void bfs(Node *n,int d[3][3]){
                 struct Node *s1 = (struct Node*)malloc(sizeof(struct Node));
                 s1 = opr(s,i);
                 if(s1!=NULL && !checkVis(s1)) {
-                    q.push(s1); // last++;
+                    q.push(mp(heu(s1,d),s1)); // last++;
                     vis[++last] = (struct Node*)malloc(sizeof(struct Node));
                     vis[last]=s1; 
                 }
@@ -115,7 +128,7 @@ void bfs(Node *n,int d[3][3]){
 int main(){
     int init[3][3],fin[3][3];
     struct Node* n = (struct Node*)malloc(sizeof(struct Node));
-    n->parent = NULL; n->prevOP = 0;
+    n->parent = NULL; n->prevOP = 0; n->level=0;
     cout<<"Enter initial state"<<endl;
     NA(i,0,3){
         NA(j,0,3){
@@ -132,5 +145,6 @@ int main(){
         }
     }
     bfs(n,fin);
-    return 0;
+    
+    return 0; 
 }
